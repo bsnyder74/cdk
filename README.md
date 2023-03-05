@@ -1,7 +1,7 @@
 # IAC
 
 Infrastructure as Code Repository  
-Projects in the repo will be either written in AWS CDK.
+Projects in the repo will be written in AWS CDK.
 
 ## Organization
 
