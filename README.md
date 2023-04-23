@@ -8,6 +8,4 @@ Projects in the repo will be written in AWS CDK.
 ```
 /
 ├── README.md
-├── aws-app
-└── aws-network
 ```
