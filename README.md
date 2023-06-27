@@ -5,7 +5,8 @@ Projects in the repo will be written in AWS CDK.
 
 ## Projects
 
-`AWS Transfer Family Server`
+`AWS Transfer Family Server`  
+`Site-to-site VPN`
 
 ## Organization
 
