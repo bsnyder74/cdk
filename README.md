@@ -1,4 +1,4 @@
-# IAC
+# CDK
 
 Infrastructure as Code Repository  
 Projects in the repo will be written in AWS CDK.
