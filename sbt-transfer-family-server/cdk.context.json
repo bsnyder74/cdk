@@ -1,0 +1,4 @@
+{
+  "ssm:account=127615680274:parameterName=/sbt/vpc/private/subnet/1/id:region=us-west-2": "subnet-0be495abc6ab9e0cf",
+  "ssm:account=127615680274:parameterName=/sbt/vpc/private/subnet/2/id:region=us-west-2": "subnet-0da97bb352b1ef918"
+}
