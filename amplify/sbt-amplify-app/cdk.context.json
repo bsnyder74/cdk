@@ -1,0 +1,3 @@
+{
+  "ssm:account=127615680274:parameterName=/sbt/iam/serviceroles/sbt-amplify-service-role/arn:region=us-west-2": "arn:aws:iam::127615680274:role/sbt-amplify-service-role"
+}
