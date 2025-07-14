@@ -8,19 +8,21 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "pkg-update": "ncu -u && npm install",
+    "fix": "npm audit fix"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.13",
-    "@types/node": "22.7.8",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.2.5",
-    "aws-cdk": "2.163.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "24.0.13",
+    "jest": "^30.0.4",
+    "ts-jest": "^29.4.0",
+    "aws-cdk": "2.1020.2",
     "ts-node": "^10.9.2",
-    "typescript": "~5.6.3"
+    "typescript": "~5.8.3"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.189.1",
+    "aws-cdk-lib": "2.204.0",
     "constructs": "^10.4.2",
     "source-map-support": "^0.5.21"
   }
