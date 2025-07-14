@@ -1,38 +1,63 @@
 import * as cdk from 'aws-cdk-lib';
 import * as amplify from 'aws-cdk-lib/aws-amplify';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
-import * as sm from 'aws-cdk-lib/aws-secretsmanager';
-import { CfnDynamicReference } from "aws-cdk-lib";
 import { Construct } from 'constructs';
 
+interface SbtAmplifyAppStackProps extends cdk.StackProps {
+  appName: string;
+  repoUrl: string;
+  branchName: string;
+  autoBuild: boolean;
+  owner: string;
+  costCenter: string;
+  githubTokenSecretName: string;
+}
 export class SbtAmplifyAppStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: SbtAmplifyAppStackProps) {
     super(scope, id, props);
 
     // Params and Lookups
-    const service_role = ssm.StringParameter.valueFromLookup(this, '/sbt/iam/serviceroles/sbt-amplify-service-role/arn');
-    // const access_token = new CfnDynamicReference(cdk.CfnDynamicReferenceService.SECRETS_MANAGER, 'sbt/github-fg/token:SecretString:token');
-    const access_token = sm.Secret.fromSecretNameV2(this, 'sbt/github-fg/token', 'token');
-
-    console.log(access_token);
-
-    const amplify_app = new amplify.CfnApp(this, 'AmplifyApp', {
-      name: 'cdk-test',
-      accessToken: access_token.secretValue.unsafeUnwrap().toString(),
-      customRules: [{
-        source: '</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>',
-        target: '/index.html',
-        status: '200',
-      }],
-      iamServiceRole: service_role,
-      platform: 'WEB',
-      repository: 'https://github.com/bsnyder74/angular-realworld-example-app'
+    const serviceRole = ssm.StringParameter.valueFromLookup(this, '/sbt/iam/serviceroles/sbt-amplify-service-role/arn');
+    const accessToken = cdk.Fn.sub("{{resolve:secretsmanager:${SecretName}:SecretString:token}}", {
+      SecretName: props.githubTokenSecretName || 'sbt/github-fg/token',
     });
 
-    const amplify_branch = new amplify.CfnBranch(this, 'AmplifyBranch', {
+    const buildSpec = `version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .npm/**/*`;
+
+    const amplify_app = new amplify.CfnApp(this, 'AmplifyApp', {
+      name: props.appName,
+      repository: props.repoUrl,
+      platform: 'WEB',
+      accessToken,
+      iamServiceRole: serviceRole,
+      enableBranchAutoDeletion: false,
+      customRules: [{
+        source: '/<*>',
+        target: '/index.html',
+        status: '404-200',
+      }],
+      buildSpec
+    });
+
+    const amplifyBranch = new amplify.CfnBranch(this, 'AmplifyBranch', {
       appId: amplify_app.attrAppId,
-      branchName: 'main',
-      enableAutoBuild: true
+      branchName: props.branchName,
+      enableAutoBuild: props.autoBuild
     });
 
     // Outputs
@@ -40,5 +65,8 @@ export class SbtAmplifyAppStack extends cdk.Stack {
       value: amplify_app.attrAppId
     });
 
+    new cdk.CfnOutput(this, 'AppBranch', {
+      value: amplifyBranch.attrBranchName
+    });
   }
 }
